@@ -1,0 +1,22 @@
+body {
+  margin: 0;
+  background-color: black;
+}
+
+.CodeMirror {
+  width: 100vh;
+  height: 100vh;
+}
+
+.cm-s-the-matrix.CodeMirror {
+  background: transparent;
+}
+
+
+#iframe {
+  position: absolute;
+  top: 0;
+  z-index: -1;
+  border: none;
+  height: 100vh;
+}
