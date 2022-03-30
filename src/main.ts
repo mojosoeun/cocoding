@@ -1,27 +1,35 @@
-import './style.css'
+import './style.css';
 
 import * as CodeMirror from 'codemirror';
 import yorkie from 'yorkie-js-sdk';
 
-const textarea = document.querySelector<HTMLTextAreaElement>('#codemirror')!
-const iframe = document.querySelector<HTMLIFrameElement>('#iframe')!
-
+const textarea = document.querySelector<HTMLTextAreaElement>('#codemirror')!;
+const iframe = document.querySelector<HTMLIFrameElement>('#iframe')!;
 
 function addChange(editor: any, from: any, to: any, text: any) {
-  let adjust = editor.listSelections().findIndex(({anchor, head}) => {
-    return CodeMirror.cmpPos(anchor, head) == 0 && CodeMirror.cmpPos(anchor, from) == 0
-  })
+  const adjust = editor.listSelections().findIndex(({ anchor, head }) => {
+    return (
+      CodeMirror.cmpPos(anchor, head) == 0 &&
+      CodeMirror.cmpPos(anchor, from) == 0
+    );
+  });
   editor.operation(() => {
-    editor.replaceRange(text, from, to, 'yorkie')
+    editor.replaceRange(text, from, to, 'yorkie');
     if (adjust > -1) {
-      let range = editor.listSelections()[adjust]
-      if (range && CodeMirror.cmpPos(range.head, CodeMirror.changeEnd({from, to, text})) == 0) {
-        let ranges = editor.listSelections().slice()
-        ranges[adjust] = {anchor: from, head: from}
-        editor.setSelections(ranges)
+      const range = editor.listSelections()[adjust];
+      if (
+        range &&
+        CodeMirror.cmpPos(
+          range.head,
+          CodeMirror.changeEnd({ from, to, text }),
+        ) == 0
+      ) {
+        const ranges = editor.listSelections().slice();
+        ranges[adjust] = { anchor: from, head: from };
+        editor.setSelections(ranges);
       }
     }
-  })
+  });
 }
 
 async function main() {
@@ -30,18 +38,18 @@ async function main() {
     mode: 'javascript',
     theme: 'the-matrix',
   });
-  
-  const client = yorkie.createClient('http://localhost:8080')
+
+  const client = yorkie.createClient('http://localhost:8080');
   await client.activate();
-  
+
   const doc = yorkie.createDocument('docs', 'doc1');
   await client.attach(doc);
 
   doc.update((root) => {
-    if(!root.content) {
+    if (!root.content) {
       root.createText('content');
     }
-  })
+  });
 
   editor.on('beforeChange', (cm, change) => {
     if (change.origin === 'yorkie' || change.origin === 'setValue') {
@@ -53,11 +61,11 @@ async function main() {
     const content = change.text.join('\n');
     doc.update((root) => {
       root.content.edit(from, to, content);
-    })
-  })
+    });
+  });
 
   doc.getRoot().content.onChanges((changes: any) => {
-    for(const change of changes) {
+    for (const change of changes) {
       if (change.type !== 'content' || change.actor === client.getID()) {
         continue;
       }
@@ -78,7 +86,7 @@ async function main() {
       ${editor.getValue()}
     </script>
   </body>`;
-  })
+  });
 }
 
-main()
+main();
